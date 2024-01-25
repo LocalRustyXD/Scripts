@@ -362,7 +362,6 @@ end
 
 function GetHugeAngelDog()
 	local StairNumber = 1
-	if _G.AutoStair then
 		local function CheckGoal()
 			local StairwayToHeaven = game:GetService("Workspace"):WaitForChild("__THINGS"):WaitForChild("__INSTANCE_CONTAINER"):WaitForChild("Active"):WaitForChild("StairwayToHeaven", 10)
 
@@ -379,12 +378,9 @@ function GetHugeAngelDog()
 				end
 			end
 		end
-		while task.wait() do
-			SpawnStair(StairNumber)
-			StairNumber += 1
-			CheckGoal()
-		end
-	end
+		SpawnStair(StairNumber)
+		StairNumber += 1
+		CheckGoal()
 end
 
 function UnlockHoverboards()
@@ -908,7 +904,9 @@ Farm:AddToggle({
 	Callback = function(Value)
 		_G.AutoStair = Value
 		if _G.AutoStair then
-			GetHugeAngelDog()
+			while task.wait() do
+				GetHugeAngelDog()
+			end
 		end
 	end    
 })
