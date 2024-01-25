@@ -379,10 +379,9 @@ function GetHugeAngelDog()
 				end
 			end
 		end
-		while task.wait(0.1) do
+		while task.wait() do
 			SpawnStair(StairNumber)
 			StairNumber += 1
-			wait(0.00001)
 			CheckGoal()
 		end
 	end
@@ -904,7 +903,7 @@ Player:AddButton({
 })
 
 Farm:AddToggle({
-	Name = "Auto Stair",
+	Name = "Auto StairV2",
 	Default = false,
 	Callback = function(Value)
 		_G.AutoStair = Value
