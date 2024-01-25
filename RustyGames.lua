@@ -861,8 +861,4 @@ Player:AddButton({
 		EquipAllPets()
 	end    
 })
-
-
-
-
 RustyLib:Init()
