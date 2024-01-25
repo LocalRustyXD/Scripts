@@ -582,33 +582,23 @@ Player = Window:MakeTab({
 
 local GameEggs = {}
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 1"):GetChildren()) do
-	if v:IsA("ModuleScript") then
 		table.insert(GameEggs, v.Name)
-	end
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 2"):GetChildren()) do
-	if v:IsA("ModuleScript") then
 		table.insert(GameEggs, v.Name)
-	end
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 3"):GetChildren()) do
-	if v:IsA("ModuleScript") then
 		table.insert(GameEggs, v.Name)
-	end
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 4"):GetChildren()) do
-	if v:IsA("ModuleScript") then
-		table.insert(GameEggs, v.Name)
-	end
+        table.insert(GameEggs, v.Name)
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 5"):GetChildren()) do
-	if v:IsA("ModuleScript") then
 		table.insert(GameEggs, v.Name)
-	end
 end
 
 Decompiler:AddSection({
@@ -633,8 +623,8 @@ Decompiler:AddButton({
 
 Pet:AddDropdown({
 	Name = "Select Egg : ",
-	Default = "1 | Cracked Egg",
-	Options = {unpack(GameEggs)},
+	Default = "",
+	Options = {GameEggs},
 	Callback = function(Value)
 		_G.SellectedEgg = Value
 	end    
@@ -660,7 +650,7 @@ Pet:AddToggle({
 					[1] = _G.SellectedEgg,
 					[2] = _G.EggsAmount
 				}
-				game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("AutoHatch_Enable"):InvokeServer(unpack(agrs))
+				game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(agrs))
 			end
 		end
 	end    
