@@ -773,18 +773,20 @@ Player:AddButton({
 	Callback = function()
 		_G.afk = true
 		local allConnected = {}
-		while _G.afk do
-			spawn(function()
-			local VirtualUser = game:GetService("VirtualUser")
-				table.insert(allConnected, game:GetService("Players").LocalPlayer.Idled:connect(function()
-					if(_G.antiAfk) then
-						VirtualUser:CaptureController()
-						VirtualUser:ClickButton2(Vector2.new())
-					else
-						return false
-					end
-				end))
-			end)
+		if _G.afk  then
+			while task.wait(1) do
+				spawn(function()
+					local VirtualUser = game:GetService("VirtualUser")
+					table.insert(allConnected, game:GetService("Players").LocalPlayer.Idled:connect(function()
+						if(_G.antiAfk) then
+							VirtualUser:CaptureController()
+							VirtualUser:ClickButton2(Vector2.new())
+						else
+							return false
+						end
+					end))
+				end)
+			end
 		end
 	end    
 })
