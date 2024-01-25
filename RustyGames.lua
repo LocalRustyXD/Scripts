@@ -1,5 +1,6 @@
 local RustyLib = loadstring(game:HttpGet(('https://pastebin.com/raw/2ivBS2MM')))()
 local Window = RustyLib:MakeWindow({Name = "RustyGames", HidePremium = false, SaveConfig = true, ConfigFolder = "RustyGames"})
+local StairCount = 1
 local config = {}
 local Serialize
 
@@ -359,12 +360,9 @@ function SpawnStair(StairNumber)
 
 	game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Instancing_InvokeCustomFromClient"):InvokeServer(unpack(args))
 end
-
 function GetHugeAngelDog()
-	local StairNumber = 1
 		local function CheckGoal()
 			local StairwayToHeaven = game:GetService("Workspace"):WaitForChild("__THINGS"):WaitForChild("__INSTANCE_CONTAINER"):WaitForChild("Active"):WaitForChild("StairwayToHeaven", 10)
-
 			if StairwayToHeaven then
 				local Goal = StairwayToHeaven:WaitForChild("Stairs"):WaitForChild("Goal", 10)
 				local Goal2 = StairwayToHeaven:WaitForChild("Goal", 10)
@@ -378,9 +376,21 @@ function GetHugeAngelDog()
 				end
 			end
 		end
-		SpawnStair(StairNumber)
-		StairNumber += 1
-		CheckGoal()
+    SpawnStair(StairCount)
+    StairCount += 1
+	CheckGoal()
+	wait(0.1)
+	SpawnStair(StairCount)
+	StairCount += 1
+	CheckGoal()
+	wait(0.1)
+	SpawnStair(StairCount)
+	StairCount += 1
+	CheckGoal()
+	wait(0.1)
+	SpawnStair(StairCount)
+	StairCount += 1
+	CheckGoal()
 end
 
 function UnlockHoverboards()
