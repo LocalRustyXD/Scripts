@@ -607,6 +607,23 @@ function SendInWebHook(WebHook, Type)
 	end
 end
 
+function updateYCoordinate()
+	local currentCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+	local currentPosition = currentCFrame.Position
+	currentPosition = Vector3.new(currentPosition.X, currentPosition.Y + 36, currentPosition.Z)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(currentPosition)
+end
+
+local coordinates
+
+local function updateCoordinates()
+	local player = game.Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+	coordinates = humanoidRootPart.Position.Y 
+end
+
 
 Decompiler = Window:MakeTab({
 	Name = "Decompiler",
@@ -906,9 +923,14 @@ Player:AddToggle({
 	Default = false,
 	Callback = function(Value)
 		_G.AutoStair = Value
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(120.79306030273438, -126.99183654785156, -213.44664001464844)
+		wait(5)
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(630.6519165039062, 143.7024383544922, -1891.4598388671875)
+		task.wait(1)
 		if _G.AutoStair then
 			while task.wait() do
-				GetHugeAngelDog()
+				updateYCoordinate()
+				wait(0.1)
 			end
 		end
 	end    
