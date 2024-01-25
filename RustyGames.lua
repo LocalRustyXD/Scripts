@@ -608,22 +608,42 @@ function SendInWebHook(WebHook, Type)
 end
 
 function AutoStair()
+	-- I would appreciate if the credits doesn't get removed, ty!
+	-- Credits: "fissurectomy" in Discord without the quotes!
+
 	if Stairway == true then
 		return
 	end
 
 	pcall(function() getgenv().Stairway = true end)
 
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = "More Info",
+		Text = 'Type "/console" in chat to know what this is for',
+		Duration = 10,
+	})
+
 	local coordinates
+	local notifs = loadstring(game:HttpGet('https://raw.githubusercontent.com/CF-Trail/random/main/FE2Notifs.lua'))()
+
+	notifs.alert('Execute "_G.s = false" to stop!\nThis is the fastest it can go due to stairs being generated.', nil, 1000000, 'rainbow')
+	task.wait(0.01)
+
+	local lastNotificationTime = 0
+	local notificationDelay = 0.5
 
 	local function updateCoordinates()
 		local player = game.Players.LocalPlayer
 		local character = player.Character or player.CharacterAdded:Wait()
 		local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-		coordinates = humanoidRootPart.Position.Y 
+		coordinates = humanoidRootPart.Position.Y -- Only the Y axis
 
 		local currentTime = tick()
+		if currentTime - lastNotificationTime >= notificationDelay then
+			notifs.alert('Studs above the sky: ' .. tostring(math.floor(coordinates)) .. '', nil, 0.5) -- Display Y axis without decimals
+			lastNotificationTime = currentTime
+		end
 	end
 
 	game:GetService("RunService").Heartbeat:Connect(updateCoordinates)
