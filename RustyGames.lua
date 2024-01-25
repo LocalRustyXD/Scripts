@@ -343,6 +343,51 @@ function savedirectory()
 	DecompileModule("Zones")
 end
 
+function TeleportWorld(World)
+	local agrs = {
+		[1] = World
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Instancing_PlayerEnterInstance"):InvokeServer(unpack(agrs))
+end
+
+function SpawnStair(StairNumber)
+	local args = {
+		[1] = "StairwayToHeaven",
+		[2] = "RequestStage",
+		[3] = StairNumber
+	}
+
+	game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Instancing_InvokeCustomFromClient"):InvokeServer(unpack(args))
+end
+
+function GetHugeAngelDog()
+	local StairNumber = 1
+	if _G.AutoStair then
+		local function CheckGoal()
+			local StairwayToHeaven = game:GetService("Workspace"):WaitForChild("__THINGS"):WaitForChild("__INSTANCE_CONTAINER"):WaitForChild("Active"):WaitForChild("StairwayToHeaven", 10)
+
+			if StairwayToHeaven then
+				local Goal = StairwayToHeaven:WaitForChild("Stairs"):WaitForChild("Goal", 10)
+				local Goal2 = StairwayToHeaven:WaitForChild("Goal", 10)
+				if Goal then
+					local GoalPad = Goal:WaitForChild("Shrine"):WaitForChild("Pad", 10)
+					game.Players.LocalPlayer.Character:MoveTo(GoalPad.Position)
+				end
+				if Goal2 then
+					local GoalPad = Goal2:WaitForChild("Shrine"):WaitForChild("Pad", 10)
+					game.Players.LocalPlayer.Character:MoveTo(GoalPad.Position)
+				end
+			end
+		end
+		while task.wait(0.1) do
+			SpawnStair(StairNumber)
+			StairNumber += 1
+			wait(0.00001)
+			CheckGoal()
+		end
+	end
+end
+
 function UnlockHoverboards()
 	local function ChangeHoverboard(Hoverboard)
 		local agrs = {
@@ -460,7 +505,7 @@ function HatchBestEgg()
 	game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("AutoHatch_Enable"):InvokeServer(unpack(agrs))
 end
 
-function UseItem(Item, ItemID)
+function UseItem(Item, ItemID, FlagName)
 	if Item == "CoinJar" then
 		local agrs = {
 			[1] = ItemID
@@ -476,6 +521,12 @@ function UseItem(Item, ItemID)
 			[1] = ItemID
 		}
 		game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("MiniChest_Spawned"):InvokeServer(unpack(agrs))
+	elseif Item == "Flag" then
+		local agrs = {
+			[1] = FlagName,
+			[2] = ItemID
+		}
+		game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Flags: Consume"):InvokeServer(unpack(agrs))
 	end
 end
 
@@ -554,11 +605,11 @@ end
 
 function SendInWebHook(WebHook, Type)
 	if Type == "Mailbox" then
-		
+
 	end
 end
-	
-	
+
+
 Decompiler = Window:MakeTab({
 	Name = "Decompiler",
 	Icon = "rbxassetid://12371216119",
@@ -582,23 +633,23 @@ Player = Window:MakeTab({
 
 local GameEggs = {}
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 1"):GetChildren()) do
-		table.insert(GameEggs, v.Name)
+	table.insert(GameEggs, v.Name)
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 2"):GetChildren()) do
-		table.insert(GameEggs, v.Name)
+	table.insert(GameEggs, v.Name)
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 3"):GetChildren()) do
-		table.insert(GameEggs, v.Name)
+	table.insert(GameEggs, v.Name)
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 4"):GetChildren()) do
-        table.insert(GameEggs, v.Name)
+	table.insert(GameEggs, v.Name)
 end
 
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 5"):GetChildren()) do
-		table.insert(GameEggs, v.Name)
+	table.insert(GameEggs, v.Name)
 end
 
 Decompiler:AddSection({
@@ -731,6 +782,19 @@ Pet:AddToggle({
 	end    
 })
 
+Farm:AddToggle({
+	Name = "Auto Farm",
+	Default = false,
+	Callback = function(Value)
+		_G.AutoFarm = Value
+		if _G.AutoFarm then
+			while task.wait(1) do
+				MakeBreakInBestArea()
+			end
+		end
+	end    
+})
+
 
 Farm:AddToggle({
 	Name = "Auto Rank",
@@ -738,7 +802,7 @@ Farm:AddToggle({
 	Callback = function(Value)
 		_G.AutoRank = Value
 		if _G.AutoRank then
-            AutoMakeRankQuests()
+			AutoMakeRankQuests()
 		end
 	end    
 })
@@ -792,14 +856,6 @@ Player:AddButton({
 })
 
 
-Player:AddTextbox({
-	Name = "WalkSpeed : ",
-	Default = 20,
-	TextDisappear = false,
-	Callback = function(Value)
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-	end	  
-})
 
 Player:AddTextbox({
 	Name = "JumpPower : ",
@@ -812,9 +868,8 @@ Player:AddTextbox({
 
 
 Player:AddButton({
-	Name = "Reset Walk and Jump",
+	Name = "Reset Jump",
 	Callback = function()
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 25
 		game.Players.LocalPlayer.Character.Humanoid.JumpPower = 50
 	end    
 })
@@ -842,9 +897,20 @@ Player:AddButton({
 })
 
 Player:AddButton({
-	Name = "Farm Best Are",
+	Name = "Teleport Void",
 	Callback = function()
-		MakeBreakInYourBestAreaQuest()
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(0, 0, 0))
+	end    
+})
+
+Farm:AddToggle({
+	Name = "Auto Stair",
+	Default = false,
+	Callback = function(Value)
+		_G.AutoStair = Value
+		if _G.AutoStair then
+			GetHugeAngelDog()
+		end
 	end    
 })
 
