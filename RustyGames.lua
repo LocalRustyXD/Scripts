@@ -908,8 +908,8 @@ Player:AddButton({
 	end    
 })
 
-Farm:AddToggle({
-	Name = "Auto StairV2",
+Player:AddToggle({
+	Name = "Auto Stair",
 	Default = false,
 	Callback = function(Value)
 		_G.AutoStair = Value
