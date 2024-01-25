@@ -624,7 +624,7 @@ Decompiler:AddButton({
 Pet:AddDropdown({
 	Name = "Select Egg : ",
 	Default = "",
-	Options = {GameEggs},
+	Options = {unpack(GameEggs)},
 	Callback = function(Value)
 		_G.SellectedEgg = Value
 	end    
@@ -846,9 +846,9 @@ Player:AddButton({
 })
 
 Player:AddButton({
-	Name = "Equip All",
+	Name = "Farm Best Are",
 	Callback = function()
-		EquipAllPets()
+		MakeBreakInYourBestAreaQuest()
 	end    
 })
 
