@@ -373,24 +373,17 @@ function GetHugeAngelDog()
 				if Goal2 then
 					local GoalPad = Goal2:WaitForChild("Shrine"):WaitForChild("Pad", 10)
 					game.Players.LocalPlayer.Character:MoveTo(GoalPad.Position)
-				end
+			    end
+			    if not Goal or Goal2 then
+				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame += CFrame.new(0, 36, 0)
+			    end
 			end
-		end
+	end
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(609.162, 131.204, -1891.442)
     SpawnStair(StairCount)
     StairCount += 1
 	CheckGoal()
 	wait(0.1)
-	SpawnStair(StairCount)
-	StairCount += 1
-	CheckGoal()
-	wait(0.1)
-	SpawnStair(StairCount)
-	StairCount += 1
-	CheckGoal()
-	wait(0.1)
-	SpawnStair(StairCount)
-	StairCount += 1
-	CheckGoal()
 end
 
 function UnlockHoverboards()
