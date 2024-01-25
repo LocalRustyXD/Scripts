@@ -580,17 +580,35 @@ Player = Window:MakeTab({
 	PremiumOnly = false
 })
 
-local GameEggs = {};
-
-for _, v  in pairs(game:GetService("ReplicatedStorage"):WaitForChild("__DIRECTORY"):WaitForChild("Eggs"):FindFirstChild("Zone Eggs"):GetChildren()) do
+local GameEggs = {}
+for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 1"):GetChildren()) do
 	if v:IsA("ModuleScript") then
 		table.insert(GameEggs, v.Name)
 	end
 end
 
-local spapets = {}
-for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:FindFirstChild("Zone Eggs"):GetChildren()) do
-	table.insert(spapets, v.Name)
+for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 2"):GetChildren()) do
+	if v:IsA("ModuleScript") then
+		table.insert(GameEggs, v.Name)
+	end
+end
+
+for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 3"):GetChildren()) do
+	if v:IsA("ModuleScript") then
+		table.insert(GameEggs, v.Name)
+	end
+end
+
+for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 4"):GetChildren()) do
+	if v:IsA("ModuleScript") then
+		table.insert(GameEggs, v.Name)
+	end
+end
+
+for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 5"):GetChildren()) do
+	if v:IsA("ModuleScript") then
+		table.insert(GameEggs, v.Name)
+	end
 end
 
 Decompiler:AddSection({
@@ -616,7 +634,7 @@ Decompiler:AddButton({
 Pet:AddDropdown({
 	Name = "Select Egg : ",
 	Default = "1 | Cracked Egg",
-	Options = {unpack(spapets)},
+	Options = {unpack(GameEggs)},
 	Callback = function(Value)
 		_G.SellectedEgg = Value
 	end    
@@ -662,7 +680,6 @@ Pet:AddToggle({
 				MakeGolden()
 			end
 		end
-		TeleportArea("Mine")
 	end    
 })
 
@@ -676,7 +693,6 @@ Pet:AddToggle({
 				MakeRainbow()
 			end
 		end
-		TeleportArea("Desert Pyramids")
 	end    
 })
 
