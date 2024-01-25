@@ -789,31 +789,25 @@ Player:AddButton({
 	end    
 })
 
-Player:AddSlider({
-	Name = "WalkSpeed",
-	Min = 25,
-	Max = 200,
-	Default = 25,
-	Color = Color3.fromRGB(255,255,255),
-	Increment = 5,
-	ValueName = "WalkSpeed",
+
+Player:AddTextbox({
+	Name = "WalkSpeed : ",
+	Default = 20,
+	TextDisappear = false,
 	Callback = function(Value)
 		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-	end    
+	end	  
 })
 
-Player:AddSlider({
-	Name = "JumpPower",
-	Min = 50,
-	Max = 200,
+Player:AddTextbox({
+	Name = "JumpPower : ",
 	Default = 50,
-	Color = Color3.fromRGB(255,255,255),
-	Increment = 5,
-	ValueName = "JumpPower",
+	TextDisappear = false,
 	Callback = function(Value)
 		game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-	end    
+	end	  
 })
+
 
 Player:AddButton({
 	Name = "Reset Walk and Jump",
