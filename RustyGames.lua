@@ -778,7 +778,7 @@ Player:AddButton({
 				spawn(function()
 					local VirtualUser = game:GetService("VirtualUser")
 					table.insert(allConnected, game:GetService("Players").LocalPlayer.Idled:connect(function()
-						if(_G.antiAfk) then
+						if(_G.afk) then
 							VirtualUser:CaptureController()
 							VirtualUser:ClickButton2(Vector2.new())
 						else
