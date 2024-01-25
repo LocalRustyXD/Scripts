@@ -613,8 +613,14 @@ Decompiler:AddButton({
 	end    
 })
 
-Pet:Dropdown("Select Egg : ",spapets,function(Value) _G.SellectedEgg = Value end)
-
+Pet:AddDropdown({
+	Name = "Select Egg : ",
+	Default = "1 | Cracked Egg",
+	Options = {unpack(spapets)},
+	Callback = function(Value)
+		_G.SellectedEgg = Value
+	end    
+})
 
 Pet:AddTextbox({
 	Name = "Amount : ",
