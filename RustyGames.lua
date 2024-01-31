@@ -1,7 +1,8 @@
-local RustyLib = loadstring(game:HttpGet(('https://pastebin.com/raw/2ivBS2MM')))()
+local RustyLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/RustyLib.lua')))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/InterfaceManager.Lua"))()
 local saveinstance = loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/save_func.lua')))()
-local Window = RustyLib:MakeWindow({Name = "RustyGames", HidePremium = false, SaveConfig = true, ConfigFolder = "RustyGames"})
-
+local Options = RustyLib.Options
 function TeleportWorld(World)
 	local agrs = {
 		[1] = World
@@ -264,29 +265,11 @@ function SendInWebHook(WebHook, Type)
 	end
 end
 
-
-Decompiler = Window:MakeTab({
-	Name = "Decompiler",
-	Icon = "rbxassetid://12371216119",
-	PremiumOnly = false
-})
-Pet = Window:MakeTab({
-	Name = "Pet",
-	Icon = "rbxassetid://14968191202",
-	PremiumOnly = false
-})
-Farm = Window:MakeTab({
-	Name = "Farm",
-	Icon = "rbxassetid://14867116225",
-	PremiumOnly = false
-})
-Player = Window:MakeTab({
-	Name = "PLayer",
-	Icon = "rbxassetid://6023426915",
-	PremiumOnly = false
-})
-
 local GameEggs = {}
+for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Release"):GetChildren()) do
+	table.insert(GameEggs, v.Name)
+end
+
 for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 1"):GetChildren()) do
 	table.insert(GameEggs, v.Name)
 end
@@ -307,273 +290,138 @@ for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitFor
 	table.insert(GameEggs, v.Name)
 end
 
-Decompiler:AddSection({
-	Name = "RustyGames"
-})
-Pet:AddSection({
-	Name = "RustyGames"
-})
-Farm:AddSection({
-	Name = "RustyGames"
-})
-Player:AddSection({
-	Name = "RustyGames"
+if game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 6") then
+	for _, v  in pairs(game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs"):FindFirstChild("Update 6"):GetChildren()) do
+		table.insert(GameEggs, v.Name)
+	end
+end
+
+local Window = RustyLib:CreateWindow({
+	Title = "RustyGames 1.0",
+	SubTitle = "by LocalRusty",
+	TabWidth = 160,
+	Size = UDim2.fromOffset(580, 460),
+	Acrylic = true, 
+	Theme = "Darker",
+	MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-Decompiler:AddButton({
-	Name = "Save Directory!",
+local Tabs = {
+	Decompiler = Window:AddTab({ Title = "Decompiler", Icon = "rbxassetid://12371216119" }),
+	Pet = Window:AddTab({ Title = "Pet", Icon = "rbxassetid://14968191202" }),
+	Farm = Window:AddTab({ Title = "Farm", Icon = "rbxassetid://14867116225" }),
+	Player = Window:AddTab({ Title = "Player", Icon = "rbxassetid://6023426915" }),
+	Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+Tabs.Decompiler:AddButton({
+	Title = "Save Directory",
+	Description = "Decompile Directory : )",
 	Callback = function()
-		saveinstance(game.ReplicatedStorage.__DIRECTORY)
-	end    
+		Window:Dialog({
+			Title = "Are you sure?",
+			Content = "Are you sure you want Save Directory",
+			Buttons = {
+				{
+					Title = "Yes",
+					Callback = function()
+						saveinstance(game.ReplicatedStorage.__DIRECTORY)
+					end
+				},
+				{
+					Title = "No",
+					Callback = function()
+					end
+				}
+			}
+		})
+	end
 })
 
-Decompiler:AddButton({
-	Name = "Save Workspace!",
+Tabs.Decompiler:AddButton({
+	Title = "Save Workspace",
+	Description = "",
 	Callback = function()
-		saveinstance(game.Workspace)
-	end    
+		Window:Dialog({
+			Title = "Are you sure?",
+			Content = "Are you sure you want Save Workspace",
+			Buttons = {
+				{
+					Title = "Yes",
+					Callback = function()
+						saveinstance(game.Workspace)
+					end
+				},
+				{
+					Title = "No",
+					Callback = function()
+					end
+				}
+			}
+		})
+	end
 })
 
-Pet:AddDropdown({
-	Name = "Select Egg : ",
-	Default = "",
-	Options = {unpack(GameEggs)},
-	Callback = function(Value)
-		_G.SellectedEgg = Value
-	end    
-})
-
-Pet:AddTextbox({
-	Name = "Amount : ",
+local SeltectEgg = Tabs.Pet:AddDropdown("SeltectEgg", {
+	Title = "Select Egg : ",
+	Values = {unpack(GameEggs)},
+	Multi = false,
 	Default = 1,
-	TextDisappear = false,
+	Callback = function(Value)
+		print("WTF")
+	end
+})
+
+SeltectEgg:OnChanged(function(Value)
+	_G.SellectedEgg = Value
+	print(Value)
+end)
+
+local Amount = Tabs.Pet:AddInput("Amount", {
+	Title = "Amount : ",
+	Default = 1,
+	Placeholder = "Placeholder",
+	Numeric = true, 
+	Finished = false,
 	Callback = function(Value)
 		_G.EggsAmount = Value
-	end	  
+	end
 })
 
-Pet:AddToggle({
-	Name = "Auto Buy",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoBuy = Value
-		if _G.AutoBuy then
-			while task.wait(0.1) do
-				local agrs = {
-					[1] = _G.SellectedEgg,
-					[2] = _G.EggsAmount
-				}
-				game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(agrs))
-			end
+local AutoBuy = Tabs.Main:AddToggle("AutoBuy", {Title = "Auto Buy", Default = false })
+
+AutoBuy:OnChanged(function()
+	print("AutoBuy changed:", Options.AutoBuy.Value)
+	_G.AutoBuy = Options.AutoBuy.Value
+	if _G.AutoBuy then
+		while task.wait(0.1) do
+			local agrs = {
+				[1] = _G.SellectedEgg,
+				[2] = _G.EggsAmount
+			}
+			game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(agrs))
 		end
-	end    
+	end
+end)
+
+
+SaveManager:SetLibrary(RustyLib)
+InterfaceManager:SetLibrary(RustyLib)
+SaveManager:IgnoreThemeSettings()
+
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("RustyGamesSettings")
+SaveManager:SetFolder("RustyGamesSettings/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+
+RustyLib:Notify({
+	Title = "RustyGames",
+	Content = "The script has been loaded",
+	Duration = 8
 })
 
-Pet:AddSection({
-	Name = "Machines"
-})
-
-Pet:AddToggle({
-	Name = "Auto Gold",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoGold = Value
-		if _G.AutoGold then
-			while task.wait(0.1)  do
-				MakeGolden()
-			end
-		end
-	end    
-})
-
-Pet:AddToggle({
-	Name = "Auto Rainbow",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoRainbow = Value
-		if _G.AutoRainbow then
-			while task.wait(0.1)  do
-				MakeRainbow()
-			end
-		end
-	end    
-})
-
-Pet:AddToggle({
-	Name = "Auto Potions Machine",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoPotionsMachine = Value
-		if _G.AutoPotionsMachine then
-			while task.wait(1) do
-				PurchaseVendingMachine("PotionVendingMachine1")
-				PurchaseVendingMachine("PotionVendingMachine2")
-				PurchaseVendingMachine("RarePotionsVendingMachine1")
-				PurchaseVendingMachine("OPPotionsVendingMachine1")
-			end
-		end
-	end    
-})
-
-Pet:AddToggle({
-	Name = "Auto Fruit Machine",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoFruitMachine = Value
-		if _G.AutoFruitMachine then
-			while task.wait(1) do
-				PurchaseVendingMachine("FruitVendingMachine1")
-				PurchaseVendingMachine("FruitVendingMachine2")
-			end
-		end
-	end    
-})
-
-Pet:AddToggle({
-	Name = "Auto Enchant Machine",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoEnchantMachine = Value
-		if _G.AutoEnchantMachine then
-			while task.wait(1) do
-				PurchaseVendingMachine("EnchantVendingMachine1")
-				PurchaseVendingMachine("EnchantVendingMachine2")
-				PurchaseVendingMachine("RareEnchantsVendingMachine1")
-			end
-		end
-	end    
-})
-
-Farm:AddToggle({
-	Name = "Auto Farm",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoFarm = Value
-		if _G.AutoFarm then
-			while task.wait(1) do
-				MakeBreakInYourBestAreaQuest()
-			end
-		end
-	end    
-})
-
-
-Farm:AddToggle({
-	Name = "Auto Rank",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoRank = Value
-		if _G.AutoRank then
-			AutoMakeRankQuests()
-		end
-	end    
-})
-
-Farm:AddToggle({
-	Name = "Auto Rewards",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoRewards = Value
-		if _G.AutoRewards then
-			while task.wait(1) do 
-				RedeemDailyReward("SmallDailyDiamonds")
-				RedeemDailyReward("SocialRewards")
-				RedeemDailyReward("GroupRewards")
-				RedeemDailyReward("VIPRewards")
-				RedeemDailyReward("DailyPotions")
-				RedeemDailyReward("DailyEnchants")
-				RedeemDailyReward("DailyItems")
-				RedeemDailyReward("MediumDailyDiamonds")
-				RedeemDailyReward("LargeDailyDiamonds")
-				RedeemDailyReward("MediumDailyPotions")
-				RedeemDailyReward("MediumDailyEnchants")
-				RedeemDailyReward("MediumDailyItems")
-			end
-		end
-	end    
-})
-
-
-Player:AddButton({
-	Name = "Anti AFK",
-	Callback = function()
-		_G.afk = true
-		local allConnected = {}
-		if _G.afk  then
-			while task.wait(1) do
-				spawn(function()
-					local VirtualUser = game:GetService("VirtualUser")
-					table.insert(allConnected, game:GetService("Players").LocalPlayer.Idled:connect(function()
-						if(_G.afk) then
-							VirtualUser:CaptureController()
-							VirtualUser:ClickButton2(Vector2.new())
-						else
-							return false
-						end
-					end))
-				end)
-			end
-		end
-	end    
-})
-
-
-
-Player:AddTextbox({
-	Name = "JumpPower : ",
-	Default = 50,
-	TextDisappear = false,
-	Callback = function(Value)
-		game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-	end	  
-})
-
-
-Player:AddButton({
-	Name = "Reset Jump",
-	Callback = function()
-		game.Players.LocalPlayer.Character.Humanoid.JumpPower = 50
-	end    
-})
-
-Player:AddSection({
-	Name = "Extra"
-})	
-
-Player:AddButton({
-	Name = "Visual Hoverboard",
-	Callback = function()
-		UnlockHoverboards()
-	end    
-})
-
-Player:AddSection({
-	Name = "InDev"
-})	
-
-Player:AddButton({
-	Name = "Unequip All",
-	Callback = function()
-		UnequipAllPets()
-	end    
-})
-
-Player:AddButton({
-	Name = "Teleport Void",
-	Callback = function()
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(0, 0, 0))
-	end    
-})
-
-Farm:AddToggle({
-	Name = "Auto Stair",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoStair = Value
-		if _G.AutoStair then
-			GetHugeAngelDog()
-		end
-	end    
-})
-
-RustyLib:Init()
+SaveManager:LoadAutoloadConfig()    
