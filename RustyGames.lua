@@ -362,25 +362,25 @@ Tabs.Decompiler:AddButton({
 	end
 })
 
-local SeltectEgg = Tabs.Pet:AddDropdown("SeltectEgg", {
+Tabs.Pet:AddParagraph({
+	Title = "Eggs",
+	Content = ""
+})
+
+Tabs.Pet:AddDropdown("SeltectEgg", {
 	Title = "Select Egg : ",
 	Values = {unpack(GameEggs)},
 	Multi = false,
-	Default = 1,
+	Default = "",
 	Callback = function(Value)
-		print("WTF")
+		_G.SellectedEgg = Value
 	end
 })
 
-SeltectEgg:OnChanged(function(Value)
-	_G.SellectedEgg = Value
-	print(Value)
-end)
-
-local Amount = Tabs.Pet:AddInput("Amount", {
+Tabs.Pet:AddInput("Amount", {
 	Title = "Amount : ",
 	Default = 1,
-	Placeholder = "Placeholder",
+	Placeholder = "Input Value",
 	Numeric = true, 
 	Finished = false,
 	Callback = function(Value)
@@ -388,21 +388,28 @@ local Amount = Tabs.Pet:AddInput("Amount", {
 	end
 })
 
-local AutoBuy = Tabs.Main:AddToggle("AutoBuy", {Title = "Auto Buy", Default = false })
-
-AutoBuy:OnChanged(function()
-	print("AutoBuy changed:", Options.AutoBuy.Value)
-	_G.AutoBuy = Options.AutoBuy.Value
-	if _G.AutoBuy then
-		while task.wait(0.1) do
-			local agrs = {
-				[1] = _G.SellectedEgg,
-				[2] = _G.EggsAmount
-			}
-			game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(agrs))
+Tabs.Pet:AddToggle("AutoBuy", {
+	Title = "Auto Buy",
+	Default = false,
+	Callback = function(Value)
+		_G.AutoBuy = Options.AutoBuy.Value
+		if _G.AutoBuy then
+			while task.wait(0.1) do
+				local agrs = {
+					[1] = _G.SellectedEgg,
+					[2] = _G.EggsAmount
+				}
+				game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(agrs))
+			end
 		end
+		print("Working")
 	end
-end)
+})
+
+Tabs.Pet:AddParagraph({
+	Title = "Machines",
+	Content = ""
+})
 
 
 SaveManager:SetLibrary(RustyLib)
