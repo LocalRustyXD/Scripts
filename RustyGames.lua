@@ -371,7 +371,7 @@ Tabs.Pet:AddDropdown("SeltectEgg", {
 	Title = "Select Egg : ",
 	Values = {unpack(GameEggs)},
 	Multi = false,
-	Default = "",
+	Default = "1 | Cracked Egg",
 	Callback = function(Value)
 		_G.SellectedEgg = Value
 	end
