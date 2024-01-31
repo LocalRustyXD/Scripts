@@ -1,6 +1,5 @@
 local RustyLib = loadstring(game:HttpGet(('https://pastebin.com/raw/2ivBS2MM')))()
 local Window = RustyLib:MakeWindow({Name = "RustyGames", HidePremium = false, SaveConfig = true, ConfigFolder = "RustyGames"})
-local StairCount = 1
 local config = {}
 local Serialize
 
@@ -298,50 +297,13 @@ function DecompileModule(DecompileType)
 	end
 end
 
+function SaveInstance(Path)
+	local saveinstance = loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/save_func.lua')))()
+	saveinstance(Path)
+end
+
 function savedirectory()
-	DecompileModule("Achievements")
-	DecompileModule("Boosts")
-	DecompileModule("Booths")
-	DecompileModule("Breakables")
-	DecompileModule("Buffs")
-	DecompileModule("Charms")
-	DecompileModule("Chests")
-	DecompileModule("Currency")
-	DecompileModule("DigsiteBlocks")
-	DecompileModule("DigsiteChests")
-	DecompileModule("DigsiteOres")
-	DecompileModule("DropTables")
-	DecompileModule("Eggs")
-	DecompileModule("Enchants")
-	DecompileModule("EventGoals")
-	DecompileModule("FishItems")
-	DecompileModule("FishingRods")
-	DecompileModule("FreeGifts")
-	DecompileModule("Fruits")
-	DecompileModule("Gamepasses")
-	DecompileModule("GuildBattles")
-	DecompileModule("Hoverboards")
-	DecompileModule("Lootboxes")	
-	DecompileModule("Merchants")
-	DecompileModule("MiscItems")	
-	DecompileModule("Ornaments")
-	DecompileModule("Pets")
-	DecompileModule("Potions")
-	DecompileModule("Products")
-	DecompileModule("RandomEvents")
-	DecompileModule("Ranks")
-	DecompileModule("Rarity")
-	DecompileModule("Rebirths")
-	DecompileModule("ReverseMerchants")
-	DecompileModule("Seeds")
-	DecompileModule("Shovels")
-	DecompileModule("SpinnyWheels")
-	DecompileModule("TimedRewards")
-	DecompileModule("Upgrades")
-	DecompileModule("VendingMachines")
-	DecompileModule("WateringCans")
-	DecompileModule("ZoneFlags")
-	DecompileModule("Zones")
+	SaveInstance(game.ReplicatedStorage.__DIRECTORY)
 end
 
 function TeleportWorld(World)
@@ -360,30 +322,30 @@ function SpawnStair(StairNumber)
 
 	game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Instancing_InvokeCustomFromClient"):InvokeServer(unpack(args))
 end
+local StairNumber = 1
+local Cost = Vector3.new(0,36,0)
 function GetHugeAngelDog()
+	if _G.AutoStair then
 		local function CheckGoal()
-			local StairwayToHeaven = game:GetService("Workspace"):WaitForChild("__THINGS"):WaitForChild("__INSTANCE_CONTAINER"):WaitForChild("Active"):WaitForChild("StairwayToHeaven", 10)
+			local StairwayToHeaven = game:GetService("Workspace"):WaitForChild("__THINGS"):WaitForChild("")
 			if StairwayToHeaven then
-				local Goal = StairwayToHeaven:WaitForChild("Stairs"):WaitForChild("Goal", 10)
-				local Goal2 = StairwayToHeaven:WaitForChild("Goal", 10)
+				local Goal = StairwayToHeaven:WaitForChild("Goal", 10)
 				if Goal then
 					local GoalPad = Goal:WaitForChild("Shrine"):WaitForChild("Pad", 10)
 					game.Players.LocalPlayer.Character:MoveTo(GoalPad.Position)
+				else
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame += CFrame.new(Cost)
 				end
-				if Goal2 then
-					local GoalPad = Goal2:WaitForChild("Shrine"):WaitForChild("Pad", 10)
-					game.Players.LocalPlayer.Character:MoveTo(GoalPad.Position)
-			    end
-			    if not Goal or Goal2 then
-				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame += CFrame.new(0, 36, 0)
-			    end
 			end
+		end
+		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame += CFrame.new(Vector3.new(0,0,0))
+		while task.wait(0.1) do
+			SpawnStair(StairNumber)
+			StairNumber += 1
+			wait(0.00001)
+			CheckGoal();
+		end
 	end
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(609.162, 131.204, -1891.442)
-    SpawnStair(StairCount)
-    StairCount += 1
-	CheckGoal()
-	wait(0.1)
 end
 
 function UnlockHoverboards()
@@ -396,7 +358,6 @@ function UnlockHoverboards()
 end
 
 function AutoMakeRankQuests()
-	--Deixa eu ver um bagulho no mobile
 end
 
 function GetRankQuests()
@@ -437,12 +398,12 @@ function MakeBreakInYourBestAreaQuest()
 	EnabledAutoFarm()
 end
 
-function MakeBreakInBestArea(Item)
+function MakeBreakItemInBestArea(Item)
 	TeleportArea("Rainbow Road")
 	wait(5)
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(-65, 158, 6433))
 	wait(5)
-	UseItem(Item, GetItemID())
+	UseItem(Item, GetItemID(Item))
 end
 
 function TeleportArea(AreaName)
@@ -607,68 +568,6 @@ function SendInWebHook(WebHook, Type)
 	end
 end
 
-function AutoStair()
-	-- I would appreciate if the credits doesn't get removed, ty!
-	-- Credits: "fissurectomy" in Discord without the quotes!
-
-	if Stairway == true then
-		return
-	end
-
-	pcall(function() getgenv().Stairway = true end)
-
-	game:GetService("StarterGui"):SetCore("SendNotification",{
-		Title = "More Info",
-		Text = 'Type "/console" in chat to know what this is for',
-		Duration = 10,
-	})
-
-	local coordinates
-	local notifs = loadstring(game:HttpGet('https://raw.githubusercontent.com/CF-Trail/random/main/FE2Notifs.lua'))()
-
-	notifs.alert('Execute "_G.s = false" to stop!\nThis is the fastest it can go due to stairs being generated.', nil, 1000000, 'rainbow')
-	task.wait(0.01)
-
-	local lastNotificationTime = 0
-	local notificationDelay = 0.5
-
-	local function updateCoordinates()
-		local player = game.Players.LocalPlayer
-		local character = player.Character or player.CharacterAdded:Wait()
-		local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-		coordinates = humanoidRootPart.Position.Y -- Only the Y axis
-
-		local currentTime = tick()
-		if currentTime - lastNotificationTime >= notificationDelay then
-			notifs.alert('Studs above the sky: ' .. tostring(math.floor(coordinates)) .. '', nil, 0.5) -- Display Y axis without decimals
-			lastNotificationTime = currentTime
-		end
-	end
-
-	game:GetService("RunService").Heartbeat:Connect(updateCoordinates)
-
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(120.79306030273438, -126.99183654785156, -213.44664001464844)
-
-	task.wait(5)
-
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(630.6519165039062, 143.7024383544922, -1891.4598388671875)
-
-	task.wait(1)
-
-	local function updateYCoordinate()
-		local currentCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-		local currentPosition = currentCFrame.Position
-		currentPosition = Vector3.new(currentPosition.X, currentPosition.Y + 36, currentPosition.Z)
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(currentPosition)
-	end
-
-	while _G.AutoStair do
-		updateYCoordinate()
-		wait(0.1)
-	end
-end
-
 
 Decompiler = Window:MakeTab({
 	Name = "Decompiler",
@@ -729,6 +628,13 @@ Decompiler:AddButton({
 	Name = "Save Directory!",
 	Callback = function()
 		savedirectory()
+	end    
+})
+
+Decompiler:AddButton({
+	Name = "Save Workspace!",
+	Callback = function()
+		SaveInstance(game.Workspace)
 	end    
 })
 
@@ -849,7 +755,7 @@ Farm:AddToggle({
 		_G.AutoFarm = Value
 		if _G.AutoFarm then
 			while task.wait(1) do
-				MakeBreakInBestArea()
+				MakeBreakInYourBestAreaQuest()
 			end
 		end
 	end    
@@ -963,13 +869,13 @@ Player:AddButton({
 	end    
 })
 
-Player:AddToggle({
+Farm:AddToggle({
 	Name = "Auto Stair",
 	Default = false,
 	Callback = function(Value)
 		_G.AutoStair = Value
 		if _G.AutoStair then
-			AutoStair()
+			GetHugeAngelDog()
 		end
 	end    
 })
