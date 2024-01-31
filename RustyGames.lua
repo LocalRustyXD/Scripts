@@ -1,13 +1,6 @@
 local RustyLib = loadstring(game:HttpGet(('https://pastebin.com/raw/2ivBS2MM')))()
+local saveinstance = loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/save_func.lua')))()
 local Window = RustyLib:MakeWindow({Name = "RustyGames", HidePremium = false, SaveConfig = true, ConfigFolder = "RustyGames"})
-function SaveInstance(Path)
-	local saveinstance = loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/save_func.lua')))()
-	saveinstance(Path)
-end
-
-function savedirectory()
-	SaveInstance(game.ReplicatedStorage.__DIRECTORY)
-end
 
 function TeleportWorld(World)
 	local agrs = {
@@ -330,14 +323,14 @@ Player:AddSection({
 Decompiler:AddButton({
 	Name = "Save Directory!",
 	Callback = function()
-		savedirectory()
+		saveinstance(game.ReplicatedStorage.__DIRECTORY)
 	end    
 })
 
 Decompiler:AddButton({
 	Name = "Save Workspace!",
 	Callback = function()
-		SaveInstance(game.Workspace)
+		saveinstance(game.Workspace)
 	end    
 })
 
