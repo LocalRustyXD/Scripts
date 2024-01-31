@@ -388,23 +388,24 @@ Tabs.Pet:AddInput("Amount", {
 	end
 })
 
-Tabs.Pet:AddToggle("AutoBuy", {
+local AutoBuyEggs = Tabs.Pet:AddToggle("AutoBuy", {
 	Title = "Auto Buy",
-	Default = false,
-	Callback = function(Value)
-		_G.AutoBuy = Options.AutoBuy.Value
-		if _G.AutoBuy then
-			while task.wait(0.1) do
-				local agrs = {
-					[1] = _G.SellectedEgg,
-					[2] = _G.EggsAmount
-				}
-				game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(agrs))
-			end
-		end
-		print("Working")
-	end
+	Default = false
 })
+
+AutoBuyEggs:OnChanged(function()
+	_G.AutoBuy = Options.AutoBuy.Value
+	if _G.AutoBuy then
+		while task.wait(0.1) do
+			local agrs = {
+				[1] = _G.SellectedEgg,
+				[2] = _G.EggsAmount
+			}
+			game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(agrs))
+		end
+	end
+	print("Working")
+end)
 
 Tabs.Pet:AddParagraph({
 	Title = "Machines",
