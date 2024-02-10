@@ -315,7 +315,7 @@ local Tabs = {
 }
 
 Tabs.Decompiler:AddButton({
-	Title = "Save Directory",
+	Title = "Save Directory V2",
 	Description = "Decompile Directory : )",
 	Callback = function()
 		Window:Dialog({
@@ -325,7 +325,7 @@ Tabs.Decompiler:AddButton({
 				{
 					Title = "Yes",
 					Callback = function()
-						saveinstance(game.ReplicatedStorage.__DIRECTORY)
+						loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/SaveDIRECTORY.txt')))()
 					end
 				},
 				{
