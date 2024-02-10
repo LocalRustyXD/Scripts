@@ -3,6 +3,305 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/L
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/InterfaceManager.Lua"))()
 local saveinstance = loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/save_func.lua')))()
 local Options = RustyLib.Options
+
+local config = {}
+local Serialize
+
+local SpecialCharacters = {
+	["\a"] = "\\a", 
+	["\b"] = "\\b", 
+	["\f"] = "\\f", 
+	["\n"] = "\\n", 
+	["\r"] = "\\r", 
+	["\t"] = "\\t", 
+	["\v"] = "\\v", 
+	["\0"] = "\\0"
+}
+
+local Keywords = { 
+	["and"] = true, 
+	["break"] = true, 
+	["do"] = true, 
+	["else"] = true, 
+	["elseif"] = true, 
+	["end"] = true, 
+	["false"] = true, 
+	["for"] = true, 
+	["function"] = true, 
+	["if"] = true, 
+	["in"] = true, 
+	["local"] = true, 
+	["nil"] = true, 
+	["not"] = true, 
+	["or"] = true, 
+	["repeat"] = true, 
+	["return"] = true, 
+	["then"] = true, 
+	["true"] = true, 
+	["until"] = true, 
+	["while"] = true, 
+	["continue"] = true
+}
+
+local DataTypes = {
+	["Axes"] = true,
+	["BrickColor"] = true,
+	["CatalogSearchParams"] = true,
+	["CFrame"] = true,
+	["Color3"] = true,
+	["ColorSequence"] = true,
+	["ColorSequenceKeypoint"] = true,
+	["DateTime"] = true,
+	["DockWidgetPluginGuiInfo"] = true,
+	["Enum"] = true,
+	["Faces"] = true,
+	["Instance"] = true,
+	["NumberRange"] = true,
+	["NumberSequence"] = true,
+	["NumberSequenceKeypoint"] = true,
+	["OverlapParams"] = true,
+	["PathWaypoint"] = true,
+	["PhysicalProperties"] = true,
+	["Random"] = true,
+	["Ray"] = true,
+	["RaycastParams"] = true,
+	["RaycastResult"] = true,
+	["Rect"] = true,
+	["Region3"] = true,
+	["Region3int16"] = true,
+	["TweenInfo"] = true,
+	["UDim"] = true,
+	["UDim2"] = true,
+	["Vector2"] = true,
+	["Vector2int16"] = true,
+	["Vector3"] = true,
+	["Vector3int16"] = true
+}
+
+local function GetFullName(Object)
+	local Hierarchy = {}
+	local ChainLength, Parent = 1, Object
+	while Parent do
+		Parent = Parent.Parent
+		ChainLength = ChainLength + 1
+	end
+
+	Parent = Object
+	local Number = 0
+	while Parent do
+		Number += 1
+		local ObjectName = string.gsub(Parent.Name, "[%c%z]", SpecialCharacters)
+		ObjectName = Parent == game and "game" or ObjectName
+		if Keywords[ObjectName] or not string.match(ObjectName, "^[_%a][_%w]*$") then
+			ObjectName = string.format("[\"%s\"]", ObjectName)
+		elseif Number ~= ChainLength - 1 then
+			ObjectName = string.format(".%s", ObjectName)
+		end
+
+		Hierarchy[ChainLength - Number] = ObjectName
+		Parent = Parent.Parent
+	end
+
+	return table.concat(Hierarchy)
+end
+
+local function Tostring(obj) 
+	local mt, r, b = getmetatable(obj)
+	if not mt or typeof(mt) ~= "table" then
+		return tostring(obj)
+	end
+
+	b = rawget(mt, "__tostring")
+	rawset(mt, "__tostring", nil)
+	r = tostring(obj)
+	rawset(mt, "__tostring", b)
+	return r
+end
+
+local function serializeArgs(...) 
+	local Serialized = {} 
+	for i,v in pairs({...}) do
+		local valueType = typeof(v)
+		local SerializeIndex = #Serialized + 1
+		if valueType == "string" then
+			Serialized[SerializeIndex] = string.format("\27[32m\"%s\"\27[0m", v)
+		elseif valueType == "table" then
+			Serialized[SerializeIndex] = Serialize(v, 0)
+		else
+			Serialized[SerializeIndex] = Tostring(v)
+		end
+	end
+
+	return table.concat(Serialized, ", ")
+end
+
+local function formatFunction(func)
+	if debug.getinfo then 
+		local proto = debug.getinfo(func)
+		local params = {}
+		if proto.nparams then
+			for i=1, proto.nparams do
+				params[i] = string.format("p%d", i)
+			end
+			if proto.isvararg then
+				params[#params+1] = "..."
+			end
+		end
+
+		return string.format("function(%s) --[[ Function Name: \"%s\" ]] end", table.concat(params, ", "), proto.namewhat or proto.name or "")
+	end
+	return "function() end"
+end
+
+local function formatString(str) 
+	local Pos = 1
+	local String = {}
+	while Pos <= #str do
+		local Key = string.sub(str, Pos, Pos)
+		if Key == "\n" then
+			String[Pos] = "\\n"
+		elseif Key == "\t" then
+			String[Pos] = "\\t"
+		elseif Key == "\"" then
+			String[Pos] = "\\\""
+		else
+			local Code = string.byte(Key)
+			if Code < 32 or Code > 126 then
+				String[Pos] = string.format("\\%d", Code)
+			else
+				String[Pos] = Key
+			end
+		end
+
+		Pos = Pos + 1
+	end
+
+	return table.concat(String)
+end
+
+local function formatNumber(numb) 
+	if numb == math.huge then
+		return "math.huge"
+	elseif numb == -math.huge then
+		return "-math.huge"
+	end
+
+	return Tostring(numb)
+end
+
+local function formatIndex(idx, scope)
+	local indexType = typeof(idx)
+	local finishedFormat = idx
+	if indexType == "string" then
+		finishedFormat = string.format("\"%s\"", formatString(idx))
+	elseif indexType == "table" then
+		scope = scope + 1
+		finishedFormat = Serialize(idx, scope)
+	elseif indexType == "number" or indexType == "boolean" then
+		finishedFormat = formatNumber(idx)
+	elseif indexType == "function" then
+		finishedFormat = formatFunction(idx)
+	elseif indexType == "Instance" then
+		finishedFormat = GetFullName(idx)
+	else
+		finishedFormat = Tostring(idx)
+	end
+
+	return string.format("[%s]", finishedFormat)
+end
+
+Serialize = function(tbl, scope, checked)
+	local scope = scope or 0
+	local Serialized = {}
+	local scopeTab = string.rep("	", scope)
+	local scopeTab2 = string.rep("	", scope + 1)
+
+	local tblLen = 0
+	for i,v in pairs(tbl) do
+		local IndexNeeded = tblLen + 1 ~= i
+		local formattedIndex = string.format(IndexNeeded and "%s = " or "", formatIndex(i, scope))
+		local valueType = typeof(v)
+		local SerializeIndex = #Serialized + 1
+
+		if valueType == "string" then 
+			Serialized[SerializeIndex] = string.format("%s%s\"%s\",\n", scopeTab2, formattedIndex, formatString(v))
+		elseif valueType == "number" or valueType == "boolean" then
+			Serialized[SerializeIndex] = string.format("%s%s%s,\n", scopeTab2, formattedIndex, formatNumber(v))
+		elseif valueType == "table" then
+			Serialized[SerializeIndex] = string.format("%s%s%s,\n", scopeTab2, formattedIndex, Serialize(v, (scope + 1), checked))
+		elseif valueType == "userdata" then
+			Serialized[SerializeIndex] = string.format("%s%s newproxy(),\n", scopeTab2, formattedIndex)
+		elseif valueType == "function" then
+			Serialized[SerializeIndex] = string.format("%s%s%s,\n", scopeTab2, formattedIndex, formatFunction(v))
+		elseif valueType == "Instance" then
+			Serialized[SerializeIndex] = string.format("%s%s%s,\n", scopeTab2, formattedIndex, game.GetFullName(v))
+		elseif DataTypes[valueType] then
+			if valueType == "CFrame" then
+				local X, Y, Z = v:GetComponents()
+				local RX, RY, RZ = v:ToEulerAnglesXYZ()
+				Serialized[SerializeIndex] = string.format("%s%s%s.new(%s)%s,\n", scopeTab2, formattedIndex, valueType, string.format("%s, %s, %s", X, Y, Z), string.format(((RX > 0 or RX < 0) or (RY > 0 or RY < 0) or (RZ > 0 or RZ < 0)) and " * CFrame.Angles(%s, %s, %s)" or "", RX, RY, RZ))
+			elseif valueType == "ColorSequence" then
+				local Sequence = {}
+				local Keypoints = v.Keypoints
+				for i = 1, #Keypoints do
+					local Keypoint = Keypoints[i]
+					Sequence[#Sequence + 1] = string.format("\n%sColorSequenceKeypoint.new(%s, %s)", string.rep("	", (scope + 2)), Keypoint.Time, string.format("Color3.fromRGB(%d, %d, %d)", (Keypoint.Value.R * 255), (Keypoint.Value.G * 255), (Keypoint.Value.B * 255)))
+				end
+
+				Serialized[SerializeIndex] = string.format("%s%s%s.new({%s\n%s}),\n", scopeTab2, formattedIndex, valueType, table.concat(Sequence, ","), scopeTab2)
+			elseif valueType == "Color3" then
+				Serialized[SerializeIndex] = string.format("%s%s%s.fromRGB(%s),\n", scopeTab2, formattedIndex, valueType, string.format("%d, %d, %d", (v.R * 255), (v.G * 255), (v.B * 255)))
+			else
+				Serialized[SerializeIndex] = string.format("%s%s%s.new(%s),\n", scopeTab2, formattedIndex, valueType, Tostring(v))
+			end
+		else
+			Serialized[SerializeIndex] = string.format("%s%s\"%s\",\n", scopeTab2, formattedIndex, Tostring(v))
+		end
+
+		tblLen = tblLen + 1 
+	end
+
+	local lastValue = Serialized[#Serialized]
+	if lastValue then
+		Serialized[#Serialized] = string.format("%s\n", string.sub(lastValue, 0, -3))
+	end
+
+	if tblLen > 0 then
+		if scope < 1 then
+			return string.format("return {\n%s}", table.concat(Serialized))  
+		else
+			return string.format("{\n%s%s}", table.concat(Serialized), scopeTab)
+		end
+	else
+		return "{}"
+	end
+end
+
+local function GetModuleName(Object, Path)
+	return string.format("%s%s.lua", Path or "", string.gsub(Object.Name, "[^%w%s]", ""))
+end
+
+function DecompileModule(DecompileType)
+	local Path = game.ReplicatedStorage.__DIRECTORY:FindFirstChild(DecompileType)
+	if Path then
+		makefolder(DecompileType)
+		for Index, Module in pairs(Path:GetDescendants()) do
+			if Module:IsA("ModuleScript") then
+				local ModuleCode = require(Module)
+				local MeshPart = Module:FindFirstChildWhichIsA("MeshPart", true)
+				if MeshPart then
+					ModuleCode.MeshId = MeshPart.MeshId
+					ModuleCode.TextureID = MeshPart.TextureID
+				end
+				writefile(GetModuleName(Module, string.format("%s/", DecompileType)), Serialize(ModuleCode))
+				task.wait(0.1)
+			end
+		end
+		print(string.format("%s is done saving.", DecompileType))
+	end
+end
+
+
 function TeleportWorld(World)
 	local agrs = {
 		[1] = World
@@ -296,6 +595,52 @@ if game:GetService("ReplicatedStorage").__DIRECTORY.Eggs:WaitForChild("Zone Eggs
 	end
 end
 
+function savedirectory()
+	DecompileModule("Achievements")
+	DecompileModule("Boosts")
+	DecompileModule("Booths")
+	DecompileModule("Breakables")
+	DecompileModule("Buffs")
+	DecompileModule("Charms")
+	DecompileModule("Chests")
+	DecompileModule("Currency")
+	DecompileModule("DigsiteBlocks")
+	DecompileModule("DigsiteChests")
+	DecompileModule("DigsiteOres")
+	DecompileModule("DropTables")
+	DecompileModule("Eggs")
+	DecompileModule("Enchants")
+	DecompileModule("EventGoals")
+	DecompileModule("FishItems")
+	DecompileModule("FishingRods")
+	DecompileModule("FreeGifts")
+	DecompileModule("Fruits")
+	DecompileModule("Gamepasses")
+	DecompileModule("GuildBattles")
+	DecompileModule("Hoverboards")
+	DecompileModule("Lootboxes")	
+	DecompileModule("Merchants")
+	DecompileModule("MiscItems")	
+	DecompileModule("Ornaments")
+	DecompileModule("Pets")
+	DecompileModule("Potions")
+	DecompileModule("Products")
+	DecompileModule("RandomEvents")
+	DecompileModule("Ranks")
+	DecompileModule("Rarity")
+	DecompileModule("Rebirths")
+	DecompileModule("ReverseMerchants")
+	DecompileModule("Seeds")
+	DecompileModule("Shovels")
+	DecompileModule("SpinnyWheels")
+	DecompileModule("TimedRewards")
+	DecompileModule("Upgrades")
+	DecompileModule("VendingMachines")
+	DecompileModule("WateringCans")
+	DecompileModule("ZoneFlags")
+	DecompileModule("Zones")
+end
+
 local Window = RustyLib:CreateWindow({
 	Title = "RustyGames 1.0",
 	SubTitle = "by LocalRusty",
@@ -315,6 +660,30 @@ local Tabs = {
 }
 
 Tabs.Decompiler:AddButton({
+	Title = "Save Directory V1",
+	Description = "Decompile Directory in only scripts : )",
+	Callback = function()
+		Window:Dialog({
+			Title = "Are you sure?",
+			Content = "Are you sure you want Save Directory",
+			Buttons = {
+				{
+					Title = "Yes",
+					Callback = function()
+						savedirectory()
+					end
+				},
+				{
+					Title = "No",
+					Callback = function()
+					end
+				}
+			}
+		})
+	end
+})
+
+Tabs.Decompiler:AddButton({
 	Title = "Save Directory V2",
 	Description = "Decompile Directory : )",
 	Callback = function()
@@ -325,7 +694,7 @@ Tabs.Decompiler:AddButton({
 				{
 					Title = "Yes",
 					Callback = function()
-						loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/SaveDIRECTORY.txt')))()
+						loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/SaveDIRECTORY.lua')))()
 					end
 				},
 				{
