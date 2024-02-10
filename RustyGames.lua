@@ -737,6 +737,36 @@ Tabs.Decompiler:AddButton({
 	end
 })
 
+Tabs.Decompiler:AddButton({
+	Title = "Save Guis",
+	Description = "",
+	Callback = function()
+		Window:Dialog({
+			Title = "Are you sure?",
+			Content = "Are you sure you want Save Guis",
+			Buttons = {
+				{
+					Title = "V1",
+					Callback = function()
+						saveinstance(game.Players.LocalPlayer.PlayerGui)
+					end
+				},
+				{
+					Title = "V2",
+					Callback = function()
+						saveinstance(game.StarterGui)
+					end
+				},
+				{
+					Title = "No",
+					Callback = function()
+					end
+				}
+			}
+		})
+	end
+})
+
 Tabs.Pet:AddParagraph({
 	Title = "Eggs",
 	Content = ""
