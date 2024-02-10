@@ -692,9 +692,15 @@ Tabs.Decompiler:AddButton({
 			Content = "Are you sure you want Save Directory",
 			Buttons = {
 				{
-					Title = "Yes",
+					Title = "Wich Scripts",
 					Callback = function()
 						loadstring(game:HttpGet(('https://raw.githubusercontent.com/LocalRustyXD/Scripts/main/SaveDIRECTORY.lua')))()
+					end
+				},
+				{
+					Title = "No Scripts",
+					Callback = function()
+						saveinstance(game:GetService("ReplicatedStorage"):WaitForChild("__DIRECTORY"))
 					end
 				},
 				{
